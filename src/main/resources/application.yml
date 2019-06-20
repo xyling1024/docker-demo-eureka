@@ -1,0 +1,20 @@
+server:
+  port: 2320
+spring:
+  application:
+    name: eureka-server
+  security:
+    user:
+      name: admin
+      password: 123456
+eureka:
+  server:
+    enable-self-preservation: false
+  instance:
+    hostname: localhost
+    status-page-url-path: /swagger-ui.html
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/

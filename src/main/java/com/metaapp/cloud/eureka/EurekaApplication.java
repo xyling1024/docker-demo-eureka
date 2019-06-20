@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Created by Mloong on 2019/03/05.
+ * docker打包上传镜像命令：mvn clean package docker:build -DpushImage -Dspring.profiles.active=default
  */
 @ComponentScan("com.metaapp")
 @EnableEurekaServer

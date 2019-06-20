@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <docker.repostory>192.168.20.20:5000</docker.repostory>
+        <docker.repository>192.168.20.20:5000</docker.repository>
     </properties>
 
     <dependencies>
@@ -88,6 +88,7 @@
                         <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>
+                <!-- docker的maven插件，官网：https://github.com/spotify/docker-maven-plugin -->
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>
@@ -99,11 +100,7 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <verbose>true</verbose>
-                        <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
-                        <generateGitPropertiesFile>true</generateGitPropertiesFile>
                         <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-                        <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -111,11 +108,15 @@
                     <artifactId>docker-maven-plugin</artifactId>
                     <version>1.0.0</version>
                     <configuration>
+                        <!-- 远程docker服务地址，需要注意防火墙开启该端口 -->
+                        <!-- 如果不指定dockerHost, 那么docker-maven-plugin 插件默认会连接本地 Docker 地址：localhost:2375；
+                        也可以设置环境变量：DOCKER_HOST=tcp://<host>:2375 -->
                         <dockerHost>http://192.168.20.20:2375</dockerHost>
-                        <registryUrl>${docker.repostory}</registryUrl>
-                        <imageName>${docker.repostory}/${project.build.finalName}:version</imageName>
+                        <!-- docker仓库地址 -->
+                        <registryUrl>${docker.repository}</registryUrl>
+                        <imageName>${docker.repository}/${project.build.finalName}/${git.branch}:${git.commit.id.abbrev}</imageName>
                         <baseImage>java</baseImage>
-                        <entryPoint>["java", "-jar", "/${project.build.finalName}.jar"]</entryPoint>
+                        <entryPoint>["java", "-jar", "-Dspring.profiles.active=${spring.profiles.active}", "/${project.build.finalName}.jar"]</entryPoint>
                         <!-- copy the service's jar file from target into the root directory of the image -->
                         <resources>
                             <resource>
@@ -125,7 +126,7 @@
                             </resource>
                         </resources>
                         <imageTags>
-                            <!--<imageTag>@123@</imageTag>-->
+                            <imageTag>${git.commit.id.abbrev}</imageTag>
                             <imageTag>latest</imageTag>
                         </imageTags>
                     </configuration>
